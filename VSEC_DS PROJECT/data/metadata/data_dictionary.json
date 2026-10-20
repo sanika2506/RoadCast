@@ -1,0 +1,166 @@
+{
+  "fields": [
+    {
+      "name": "date_time",
+      "type": "datetime (ISO 8601)",
+      "origin": "observed",
+      "unit": "YYYY-MM-DD HH:MM:SS",
+      "description": "Hourly timestamp of the traffic count observation.",
+      "null_behavior": "Mandatory. Rows with unparseable timestamps are dropped.",
+      "example": "2012-10-02 09:00:00"
+    },
+    {
+      "name": "traffic_volume",
+      "type": "integer",
+      "origin": "observed",
+      "unit": "vehicles per hour (veh/h)",
+      "description": "Westbound hourly traffic volume recorded at ATR 301 station.",
+      "null_behavior": "Never silently converted to zero. Valid range: 0 to 8000.",
+      "example": 5545
+    },
+    {
+      "name": "temp",
+      "type": "float",
+      "origin": "observed",
+      "unit": "Kelvin (K)",
+      "description": "Average hourly air temperature in Kelvin.",
+      "null_behavior": "Records with sensor failure (0.0 K = absolute zero anomaly) are filtered/corrected.",
+      "example": 288.28
+    },
+    {
+      "name": "temp_celsius",
+      "type": "float",
+      "origin": "derived",
+      "unit": "Degrees Celsius (°C)",
+      "description": "Derived temperature in Celsius (temp - 273.15).",
+      "null_behavior": "Derived from valid temp.",
+      "example": 15.13
+    },
+    {
+      "name": "rain_1h",
+      "type": "float",
+      "origin": "observed",
+      "unit": "millimeters (mm)",
+      "description": "Rain accumulation in the hour before the observation.",
+      "null_behavior": "Defaults to 0.0 mm if dry. Anomalous gauge spikes (>500mm sensor errors) are audited.",
+      "example": 0.0
+    },
+    {
+      "name": "snow_1h",
+      "type": "float",
+      "origin": "observed",
+      "unit": "meters (m) or millimeters",
+      "description": "Snow accumulation in the preceding hour.",
+      "null_behavior": "0.0 when no snow is reported.",
+      "example": 0.0
+    },
+    {
+      "name": "clouds_all",
+      "type": "integer",
+      "origin": "observed",
+      "unit": "percentage (%)",
+      "description": "Cloud coverage percentage (0% = completely clear, 100% = overcast).",
+      "null_behavior": "Bounded between 0 and 100.",
+      "example": 40
+    },
+    {
+      "name": "weather_main",
+      "type": "string (categorical)",
+      "origin": "observed",
+      "unit": "categorical",
+      "description": "High-level weather category: Clear, Clouds, Rain, Snow, Drizzle, Mist, Fog, Thunderstorm, Haze, Squall, Smoke.",
+      "null_behavior": "Standardized to title case.",
+      "example": "Clouds"
+    },
+    {
+      "name": "weather_description",
+      "type": "string (categorical)",
+      "origin": "observed",
+      "unit": "textual description",
+      "description": "Detailed text description of current weather state.",
+      "null_behavior": "Retained as detailed context.",
+      "example": "scattered clouds"
+    },
+    {
+      "name": "holiday",
+      "type": "string (categorical) / nullable",
+      "origin": "observed",
+      "unit": "holiday name or 'None'",
+      "description": "US National holiday or special event name if the day is a recognized holiday.",
+      "null_behavior": "Normalized to 'None' for regular days instead of ambiguous nulls.",
+      "example": "Thanksgiving Day"
+    },
+    {
+      "name": "is_holiday",
+      "type": "boolean",
+      "origin": "derived",
+      "unit": "flag (true/false)",
+      "description": "Derived indicator: true if the day is an observed holiday, false otherwise.",
+      "null_behavior": "Derived deterministically from holiday column.",
+      "example": false
+    },
+    {
+      "name": "hour",
+      "type": "integer",
+      "origin": "derived",
+      "unit": "hour of day (0-23)",
+      "description": "Extracted hour component from date_time.",
+      "null_behavior": "Derived from timestamp.",
+      "example": 9
+    },
+    {
+      "name": "day_of_week",
+      "type": "integer",
+      "origin": "derived",
+      "unit": "day index (0=Monday, 6=Sunday)",
+      "description": "ISO weekday index extracted from date_time.",
+      "null_behavior": "Derived from timestamp.",
+      "example": 1
+    },
+    {
+      "name": "day_name",
+      "type": "string",
+      "origin": "derived",
+      "unit": "English weekday name",
+      "description": "Full day name (Monday, Tuesday, etc.).",
+      "null_behavior": "Derived from timestamp.",
+      "example": "Tuesday"
+    },
+    {
+      "name": "is_weekend",
+      "type": "boolean",
+      "origin": "derived",
+      "unit": "flag (true/false)",
+      "description": "True if day_of_week >= 5 (Saturday or Sunday), false otherwise.",
+      "null_behavior": "Derived from timestamp.",
+      "example": false
+    },
+    {
+      "name": "month",
+      "type": "integer",
+      "origin": "derived",
+      "unit": "month index (1-12)",
+      "description": "Extracted calendar month from date_time.",
+      "null_behavior": "Derived from timestamp.",
+      "example": 10
+    },
+    {
+      "name": "year",
+      "type": "integer",
+      "origin": "derived",
+      "unit": "year (2012-2018)",
+      "description": "Extracted calendar year from date_time.",
+      "null_behavior": "Derived from timestamp.",
+      "example": 2012
+    },
+    {
+      "name": "congestion_category",
+      "type": "string (categorical)",
+      "origin": "derived",
+      "unit": "traffic level category",
+      "description": "Documented historical traffic volume classification: Low (<1500 veh/h), Moderate (1500-3499 veh/h), Heavy (3500-4999 veh/h), Severe (>=5000 veh/h).",
+      "null_behavior": "Derived deterministically based on volume thresholds.",
+      "example": "Severe"
+    }
+  ]
+}

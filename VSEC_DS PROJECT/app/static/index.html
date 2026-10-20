@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RoadCast — Commuter Traffic Intelligence & Route Analytics</title>
+  <meta name="description"
+    content="RoadCast is an intuitive commuter traffic analytics and routing platform with real-world routes and traffic intelligence.">
+
+  <!-- Fonts: Clean Inter Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Leaflet CSS for OpenStreetMap -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- SideRays Component CSS (React Bits) -->
+  <link rel="stylesheet" href="/static/css/SideRays.css?v=black-glass-4.0">
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="/static/css/main.css?v=clean-font-5.0">
+</head>
+
+<body class="theme-midnight">
+  <!-- React Bits: SideRays Atmospheric WebGL God Rays Background Layer -->
+  <div id="sideRaysBackground" class="side-rays-background-wrap" aria-hidden="true">
+    <div class="side-rays-ambient-radial"></div>
+  </div>
+
+  <!-- Ambient Route SVG Background Glow -->
+  <div class="ambient-route-canvas-wrap" aria-hidden="true">
+    <svg class="ambient-route-svg" viewBox="0 0 1440 900" fill="none" preserveAspectRatio="none">
+      <path d="M -100 250 C 300 120, 600 400, 950 200 S 1350 480, 1600 320" stroke="rgba(93, 228, 199, 0.08)"
+        stroke-width="2.5" stroke-dasharray="8 6" />
+      <path d="M -50 450 C 400 300, 750 600, 1100 380 S 1400 700, 1600 550" stroke="rgba(122, 167, 255, 0.06)"
+        stroke-width="2" />
+    </svg>
+  </div>
+
+  <!-- Global Header -->
+  <header class="app-header" role="banner">
+    <div class="header-inner container">
+      <div class="brand-group">
+        <div class="brand-logo" aria-hidden="true">
+          <svg width="30" height="30" viewBox="0 0 28 28" fill="none">
+            <rect width="28" height="28" rx="8" fill="#121A2B" stroke="#2B3850" />
+            <path d="M5 21L11 7L17 21" stroke="#5DE4C7" stroke-width="2.2" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M14 14H23" stroke="#7AA7FF" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3" />
+            <circle cx="23" cy="14" r="2.5" fill="#FFC46B" />
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">RoadCast <span class="badge-version">Live</span></div>
+          <div class="brand-sub">Traffic Analysis & Data Science Platform</div>
+        </div>
+      </div>
+
+      <!-- Clean 2-Tab Navigation -->
+      <nav class="nav-links" role="navigation" aria-label="Main Navigation">
+        <button class="nav-btn active" data-tab="route-planner" id="nav-route">
+          <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          Show Route
+        </button>
+        <button class="nav-btn" data-tab="methodology" id="nav-methodology">
+          <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4" />
+            <path d="M12 8h.01" />
+          </svg>
+          Project & Syllabus
+        </button>
+      </nav>
+
+      <div class="header-actions">
+        <span class="badge-academic" title="Traffic Intelligence Platform">
+          <span class="dot-online"></span> System Online
+        </span>
+      </div>
+
+      <!-- Mobile Menu Toggle -->
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
+    <div class="mobile-drawer-content">
+      <button class="drawer-close-btn" id="closeDrawerBtn" aria-label="Close menu">&times;</button>
+      <div class="drawer-links">
+        <button class="drawer-btn active" data-tab="route-planner">Show Route</button>
+        <button class="drawer-btn" data-tab="methodology">Project & Syllabus</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Viewport Container -->
+  <main class="main-viewport container" id="mainContainer" role="main">
+
+    <!-- =========================================================================
+         TAB 1: SIMPLE COMMUTER ROUTE PLANNER (MAIN HOMEPAGE)
+         ========================================================================= -->
+    <section class="tab-pane active" id="pane-route-planner" aria-labelledby="nav-route">
+
+      <!-- Clean Hero Section -->
+      <div class="commuter-hero">
+        <h1 class="commuter-heading">Know Before You Go</h1>
+        <p class="commuter-subheading">
+          Enter your starting point and destination. Discover your driving route, estimated travel time, and historical
+          traffic congestion patterns before heading out.
+        </p>
+      </div>
+
+      <!-- Route Search Card -->
+      <div class="route-search-card card">
+        <form id="routeSearchForm" class="route-form">
+          <div class="route-inputs-grid">
+
+            <!-- Origin Input -->
+            <div class="form-field">
+              <label for="routeOrigin" class="field-label">
+                <span class="marker-bullet origin-bullet"></span> Starting Location
+              </label>
+              <div class="input-wrapper">
+                <input type="text" id="routeOrigin" class="route-input"
+                  placeholder="e.g. Minneapolis, MN or PCCOE Akurdi" value="Minneapolis, MN" required
+                  autocomplete="off">
+              </div>
+            </div>
+
+            <!-- Destination Input -->
+            <div class="form-field">
+              <label for="routeDestination" class="field-label">
+                <span class="marker-bullet dest-bullet"></span> Destination
+              </label>
+              <div class="input-wrapper">
+                <input type="text" id="routeDestination" class="route-input"
+                  placeholder="e.g. St. Paul, MN or Shivajinagar Pune" value="St. Paul, MN" required autocomplete="off">
+              </div>
+            </div>
+
+            <!-- Departure Time Selector -->
+            <div class="form-field">
+              <label for="routeHour" class="field-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+                Travel Time
+              </label>
+              <div class="input-wrapper">
+                <select id="routeHour" class="route-select">
+                  <option value="7">07:00 AM (Morning Rush Starts)</option>
+                  <option value="8" selected>08:00 AM (Peak Morning Rush)</option>
+                  <option value="9">09:00 AM (Morning Wind-down)</option>
+                  <option value="12">12:00 PM (Midday Steady)</option>
+                  <option value="16">04:00 PM (Evening Rush Starts)</option>
+                  <option value="17">05:00 PM (Peak Evening Rush)</option>
+                  <option value="19">07:00 PM (Evening Free-flow)</option>
+                  <option value="22">10:00 PM (Nighttime Low)</option>
+                  <option value="2">02:00 AM (Late Night Minimal)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Day of Week Selector -->
+            <div class="form-field">
+              <label for="routeDay" class="field-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                Day
+              </label>
+              <div class="input-wrapper">
+                <select id="routeDay" class="route-select">
+                  <option value="Monday">Monday</option>
+                  <option value="Tuesday" selected>Tuesday (Weekday)</option>
+                  <option value="Wednesday">Wednesday</option>
+                  <option value="Thursday">Thursday</option>
+                  <option value="Friday">Friday (Pre-Weekend)</option>
+                  <option value="Saturday">Saturday (Weekend)</option>
+                  <option value="Sunday">Sunday (Weekend)</option>
+                </select>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Quick Preset Demo Chips -->
+          <div class="preset-chips-row">
+            <span class="preset-label">Quick Routes:</span>
+            <button type="button" class="preset-btn" id="presetPune">
+              <span class="preset-badge neutral">Local</span>
+              PCCOE Akurdi &rarr; Shivajinagar Pune
+            </button>
+            <button type="button" class="preset-btn" id="presetI94">
+              <span class="preset-badge">Highway</span>
+              Minneapolis &rarr; St. Paul
+            </button>
+          </div>
+
+          <!-- Single Main Action Button -->
+          <div class="form-submit-row">
+            <button type="submit" class="btn-show-route" id="btnShowRoute">
+              <svg class="btn-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5">
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+              <span>Show My Route</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Route Results Banner & Summary (Interactive) -->
+      <div class="route-results-section" id="routeResultsSection">
+
+        <div class="route-summary-strip card" id="routeSummaryStrip">
+          <div class="summary-metric-item">
+            <div class="metric-icon time-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5DE4C7" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+            </div>
+            <div>
+              <div class="metric-label">Estimated Travel Time</div>
+              <div class="metric-value" id="resDuration">24 mins</div>
+            </div>
+          </div>
+
+          <div class="summary-metric-divider"></div>
+
+          <div class="summary-metric-item">
+            <div class="metric-icon dist-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7AA7FF" stroke-width="2">
+                <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            </div>
+            <div>
+              <div class="metric-label">Journey Distance</div>
+              <div class="metric-value" id="resDistance">19.2 km</div>
+            </div>
+          </div>
+
+          <div class="summary-metric-divider"></div>
+
+          <div class="summary-metric-item">
+            <div class="metric-icon traffic-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF727F" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M9 9h6M9 15h6" />
+              </svg>
+            </div>
+            <div>
+              <div class="metric-label">Historical Traffic Status</div>
+              <div class="metric-value" id="resTrafficStatus">
+                <span class="traffic-tag tag-heavy" id="resTrafficTag">Heavy Peak Flow</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Map Container -->
+        <div class="map-card card">
+          <div class="map-header-bar">
+            <div class="map-title-group">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5DE4C7" stroke-width="2">
+                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+                <line x1="8" y1="2" x2="8" y2="18" />
+                <line x1="16" y1="6" x2="16" y2="22" />
+              </svg>
+              <span class="map-title" id="mapTitle">Interactive Route Map</span>
+            </div>
+            <div class="map-controls-group">
+              <div class="map-layer-selector">
+                <select id="mapLayerSelect" class="map-layer-dropdown" aria-label="Select Map Provider">
+                  <option value="googleRoadmap" selected>🌐 Google Maps (Roadmap)</option>
+                  <option value="googleTraffic">🚦 Google Maps (Traffic)</option>
+                  <option value="googleSatellite">🛰️ Google Maps (Satellite)</option>
+                  <option value="osm">🗺️ OpenStreetMap (Free)</option>
+                </select>
+              </div>
+              <button type="button" class="btn-api-key" id="btnApiKeyModal" title="Configure Google Maps API Key">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3" />
+                  <path
+                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+                <span>API Key</span>
+              </button>
+              <div class="map-corridor-badge" id="mapCorridorBadge">
+                I-94 Sensor Corridor
+              </div>
+            </div>
+          </div>
+
+
+          <!-- The Leaflet Map Canvas -->
+          <div id="routeMap" class="leaflet-map-canvas"
+            style="height: 480px; width: 100%; border-radius: var(--radius-md);"></div>
+
+          <!-- Simple Commuter Traffic Legend -->
+          <div class="commuter-legend-bar">
+            <span class="legend-title">Traffic Intensity:</span>
+            <div class="legend-items">
+              <div class="legend-item">
+                <span class="legend-indicator dot-green"></span>
+                <span class="legend-text"><strong>Low</strong> (&lt; 1,500 veh/h) &bull; Free-flow</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-indicator dot-yellow"></span>
+                <span class="legend-text"><strong>Moderate</strong> (1,500 – 3,499 veh/h) &bull; Steady</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-indicator dot-red"></span>
+                <span class="legend-text"><strong>Heavy</strong> (&ge; 3,500 veh/h) &bull; Peak Congestion</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Commuter Navigation & Traffic Intelligence Panel -->
+        <div class="commuter-insights-card card" id="commuterInsightsCard">
+          <div class="insights-header">
+            <div class="insights-title-row">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5DE4C7" stroke-width="2.2">
+                <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <h2 class="insights-title">Route Traffic Outlook & Commuter Guide</h2>
+            </div>
+            <span class="insights-badge" id="insightsBadge">Traffic Outlook</span>
+          </div>
+
+          <!-- Overall Traffic Condition at Selected Time -->
+          <div class="insights-notice-box" id="insightsNoticeBox">
+            <!-- Dynamically populated traffic summary -->
+          </div>
+
+          <!-- Optimal Departure Window Banner -->
+          <div class="departure-window-card" id="departureWindowCard">
+            <div class="dep-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5DE4C7" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+            </div>
+            <div>
+              <div class="dep-label">Best Departure Window</div>
+              <div class="dep-text" id="bestDepartureText">Loading departure recommendation...</div>
+            </div>
+          </div>
+
+          <!-- Section 1: Traffic Bottlenecks & Choke Points -->
+          <div class="commuter-section-block">
+            <h3 class="commuter-block-title">
+              <span class="bullet-red"></span> Expected Traffic Bottlenecks & Choke Points
+            </h3>
+            <div class="bottlenecks-grid" id="bottlenecksContainer">
+              <!-- Dynamically populated bottleneck cards -->
+            </div>
+          </div>
+
+          <!-- Section 2: Suggested Alternate Routes -->
+          <div class="commuter-section-block">
+            <h3 class="commuter-block-title">
+              <span class="bullet-blue"></span> Suggested Alternate Routes
+            </h3>
+            <div class="alternate-routes-grid" id="alternateRoutesContainer">
+              <!-- Dynamically populated route cards -->
+            </div>
+          </div>
+
+          <!-- Section 3: Practical Travel Tips -->
+          <div class="commuter-section-block">
+            <h3 class="commuter-block-title">
+              <span class="bullet-mint"></span> Commuter Travel Tips
+            </h3>
+            <div class="travel-tips-list" id="travelTipsList">
+              <!-- Dynamically populated tips -->
+            </div>
+          </div>
+
+        </div>
+
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================================================================
+         TAB 2: PROJECT METHODOLOGY & COLLEGE SYLLABUS
+         ========================================================================= -->
+    <section class="tab-pane" id="pane-methodology" aria-labelledby="nav-methodology">
+
+      <div class="methodology-card card">
+        <div class="methodology-badge">Documentation</div>
+        <h1 class="page-title">RoadCast: System Architecture & Methodology</h1>
+
+        <div class="methodology-section">
+          <h2>1. Problem Statement & Motivation</h2>
+          <p>
+            Urban highway congestion leads to thousands of wasted commuter hours, increased fuel consumption, and
+            heightened collision risks. Ordinary commuters need an intuitive "Know Before You Go" tool that presents
+            realistic route estimates and historical traffic patterns without getting overwhelmed by technical
+            dashboards.
+          </p>
+        </div>
+
+        <div class="methodology-section">
+          <h2>2. Data Science Syllabus Mapping</h2>
+          <div class="syllabus-table-wrap">
+            <table class="syllabus-table">
+              <thead>
+                <tr>
+                  <th>Syllabus Unit / Step</th>
+                  <th>Implementation in RoadCast</th>
+                  <th>Tools & Libraries</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Data Acquisition</strong></td>
+                  <td>Imported 48,204 UCI Interstate records; SQLite database storage (<code>traffic.db</code>); OSM
+                    Nominatim & OSRM API routing.</td>
+                  <td>Pandas, SQLite3, HTTPX</td>
+                </tr>
+                <tr>
+                  <td><strong>Data Cleaning</strong></td>
+                  <td>Removed 7,629 duplicate timestamps; filtered 0K sensor freezes and 9,800mm rain spikes; extracted
+                    hour, day, month, and holiday features.</td>
+                  <td>Pandas, NumPy</td>
+                </tr>
+                <tr>
+                  <td><strong>Exploratory Data Analysis</strong></td>
+                  <td>Distribution plots, 24-hr rush curve, weekday/weekend profile, correlation matrix, weather impact
+                    bars.</td>
+                  <td>Matplotlib, Seaborn, Chart.js</td>
+                </tr>
+                <tr>
+                  <td><strong>Statistical Testing</strong></td>
+                  <td>Two-sample Welch's t-test comparing weekday vs weekend traffic volumes with formal hypothesis
+                    statement and p-value validation.</td>
+                  <td>SciPy Stats</td>
+                </tr>
+                <tr>
+                  <td><strong>Machine Learning</strong></td>
+                  <td>HistGradientBoosting Regressor with strict chronological 80/20 train-test split evaluated against
+                    an Hour &times; Day-of-Week historical baseline.</td>
+                  <td>scikit-learn</td>
+                </tr>
+                <tr>
+                  <td><strong>User Interface</strong></td>
+                  <td>Commuter-first route search, Leaflet interactive map, traffic intensity color coding, clear
+                    scientific caveats.</td>
+                  <td>HTML5, Vanilla CSS, Leaflet.js</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="methodology-section">
+          <h2>3. Machine Learning Evaluation Results</h2>
+          <div class="ml-results-grid">
+            <div class="ml-metric-box">
+              <div class="ml-metric-val">265.35</div>
+              <div class="ml-metric-name">HistGradientBoosting MAE (veh/h)</div>
+              <div class="ml-metric-sub">4.26% improvement over baseline</div>
+            </div>
+            <div class="ml-metric-box">
+              <div class="ml-metric-val">461.77</div>
+              <div class="ml-metric-name">HistGradientBoosting RMSE (veh/h)</div>
+              <div class="ml-metric-sub">7.24% error reduction</div>
+            </div>
+            <div class="ml-metric-box">
+              <div class="ml-metric-val">0.9451</div>
+              <div class="ml-metric-name">Coefficient of Determination (R&sup2;)</div>
+              <div class="ml-metric-sub">Explains 94.5% of variance</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="methodology-section">
+          <h2>4. Critical Academic Limitations</h2>
+          <ul class="limitations-list">
+            <li><strong>Geographic Boundary:</strong> Historical ML model weights are calibrated specifically for
+              westbound I-94 at ATR Station 301. They must not be claimed as calibrated predictions for arbitrary city
+              roads in Pune, Mumbai, or elsewhere without local sensor datasets.</li>
+            <li><strong>Historical vs Live:</strong> RoadCast analyzes historical empirical data. It is not a live GPS
+              navigation system and does not claim real-time sensor feeds.</li>
+            <li><strong>Extreme Outliers:</strong> Major blizzards, multi-lane accidents, or severe highway closures may
+              cause actual conditions to deviate from historical expectations.</li>
+          </ul>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="app-footer">
+    <div class="container footer-content">
+      <div class="footer-left">
+        <strong>RoadCast</strong> &bull; Commuter Traffic Intelligence &bull; Route Analytics Platform
+      </div>
+      <div class="footer-right">
+        <span>Educational Traffic Analytics</span> &bull; <span>Not for Live Navigation</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Google Maps API Key Modal -->
+  <div class="modal-overlay" id="apiKeyModal" aria-hidden="true" style="display: none;">
+    <div class="modal-card card">
+      <div class="modal-header">
+        <h3 class="modal-title">Google Maps Platform Configuration</h3>
+        <button type="button" class="btn-close-modal" id="btnCloseApiKeyModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          Enter your <strong>Google Maps Platform API Key</strong> (optional). RoadCast uses Google Maps raster tiles
+          and standard OpenStreetMap tiles by default without any watermark.
+        </p>
+        <div class="form-field" style="margin-top: 16px;">
+          <label for="googleMapsApiKeyInput" class="field-label">Google Maps API Key</label>
+          <input type="text" id="googleMapsApiKeyInput" class="route-input" placeholder="AIzaSy..." autocomplete="off">
+        </div>
+        <p class="modal-tip">
+          💡 If you don't have a key, simply select <strong>Google Maps (Roadmap)</strong> or <strong>OpenStreetMap
+            (Free)</strong> in the map header dropdown.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" id="btnRemoveApiKey">Clear Key</button>
+        <button type="button" class="btn-primary" id="btnSaveApiKey">Save & Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- React Bits SideRays WebGL Engine -->
+  <script src="/static/js/SideRays.js?v=black-glass-4.0"></script>
+  <!-- Application Logic -->
+  <script src="/static/js/app.js?v=black-glass-4.0"></script>
+</body>
+
+</html>

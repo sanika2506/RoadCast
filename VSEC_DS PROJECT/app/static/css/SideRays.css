@@ -1,0 +1,45 @@
+/* ==========================================================================
+   SideRays Component Styles — React Bits
+   Black Glassmorphism Background Integration
+   ========================================================================== */
+
+.side-rays {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.side-rays__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Full-viewport fixed atmospheric background for First Page */
+.side-rays-background-wrap {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  transition: opacity 0.4s ease;
+}
+
+/* Subtle radial glow underlay for depth in true black */
+.side-rays-ambient-radial {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle 900px at 85% 15%, rgba(255, 196, 107, 0.08) 0%, transparent 60%),
+    radial-gradient(circle 800px at 60% 30%, rgba(150, 200, 255, 0.06) 0%, transparent 55%),
+    radial-gradient(circle 700px at 20% 80%, rgba(93, 228, 199, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}

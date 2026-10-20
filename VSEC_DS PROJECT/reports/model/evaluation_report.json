@@ -1,0 +1,99 @@
+{
+  "model_name": "RoadCast Interstate Volume Estimator",
+  "model_version": "1.0.0",
+  "model_type": "HistGradientBoostingRegressor with OneHot Encoding",
+  "training_date": "2026-10-20T11:36:32.068166+00:00",
+  "target_variable": {
+    "name": "traffic_volume",
+    "unit": "vehicles per hour (veh/h)",
+    "definition": "Westbound hourly vehicle counts on I-94 at ATR Station 301"
+  },
+  "split_strategy": {
+    "type": "Chronological (Time-ordered)",
+    "leakage_prevention": "Test set observations are chronologically subsequent to all training records; no future timestamps or target leakages were present during fitting.",
+    "train_period": "2012-10-02 09:00:00 to 2017-10-26 17:00:00",
+    "test_period": "2017-10-26 18:00:00 to 2018-09-30 23:00:00",
+    "train_observations": 32460,
+    "test_observations": 8115
+  },
+  "input_features": {
+    "categorical": [
+      "weather_main",
+      "day_name",
+      "month_name"
+    ],
+    "numeric": [
+      "hour",
+      "day_of_week",
+      "month",
+      "temp_celsius",
+      "rain_1h",
+      "snow_1h",
+      "clouds_all",
+      "is_weekend",
+      "is_holiday"
+    ]
+  },
+  "baseline_evaluation": {
+    "model": "Historical Hour-of-Day x Day-of-Week Mean",
+    "mae": 277.16,
+    "rmse": 497.82,
+    "r2_score": 0.9361
+  },
+  "candidate_ml_evaluation": {
+    "model": "HistGradientBoostingRegressor",
+    "mae": 265.35,
+    "rmse": 461.77,
+    "r2_score": 0.9451
+  },
+  "classification_evaluation": {
+    "task": "4-Tier Congestion Classification (Low, Moderate, Heavy, Severe)",
+    "accuracy": 0.875,
+    "macro_precision": 0.875,
+    "macro_recall": 0.874,
+    "macro_f1_score": 0.8744,
+    "confusion_matrix": [
+      [
+        2070,
+        89,
+        15,
+        9
+      ],
+      [
+        69,
+        1675,
+        132,
+        23
+      ],
+      [
+        0,
+        160,
+        1744,
+        221
+      ],
+      [
+        0,
+        1,
+        295,
+        1612
+      ]
+    ],
+    "tier_labels": [
+      "Low",
+      "Moderate",
+      "Heavy",
+      "Severe"
+    ]
+  },
+  "performance_gain": {
+    "mae_reduction_pct": 4.26,
+    "rmse_reduction_pct": 7.24,
+    "r2_difference": 0.0089
+  },
+  "limitations_and_caveats": [
+    "Estimates apply specifically to westbound I-94 near Minneapolis-St. Paul (Station 301).",
+    "Not applicable to arbitrary city streets or other geographic regions without local training data.",
+    "Predictions are statistical approximations based on historical data (2012-2018) and must not be used as live turn-by-turn guidance or guaranteed travel times.",
+    "Extreme unobserved events (e.g., blizzards exceeding 30 inches or total road closures) may diverge from historical estimates."
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "dataset_id": "uci_metro_interstate",
+  "name": "Metro Interstate Traffic Volume",
+  "version": "1.0.0",
+  "description": "Hourly interstate traffic volume for westbound I-94 near Minneapolis-St. Paul, Minnesota, paired with local weather features and holiday occurrences from 2012 to 2018.",
+  "owner": "Minnesota Department of Transportation (MnDOT) / John Hogue",
+  "source_url": "https://archive.ics.uci.edu/dataset/492/metro+interstate+traffic+volume",
+  "retrieval_date": "2026-10-20",
+  "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+  "attribution": "Hogue, John. (2019). Metro Interstate Traffic Volume. UCI Machine Learning Repository. https://doi.org/10.24432/C56S30.",
+  "geographic_coverage": {
+    "road_name": "Interstate 94 (Westbound)",
+    "region": "Minneapolis-St. Paul, MN, USA",
+    "station_id": "ATR 301",
+    "coordinates": {
+      "latitude": 44.9778,
+      "longitude": -93.2650
+    },
+    "single_station_limitation": "This dataset monitors a single permanent automated traffic recorder (ATR 301) on westbound I-94. It does not provide city-wide or segment-by-segment speed observations."
+  },
+  "temporal_coverage": {
+    "start_time": "2012-10-02 09:00:00",
+    "end_time": "2018-09-30 23:00:00",
+    "total_span_years": 6,
+    "time_zone": "US/Central (CST/CDT)"
+  },
+  "observation_count_raw": 48204,
+  "sampling_frequency": "Hourly",
+  "is_synthetic": false,
+  "disclaimer": "HISTORICAL DATA NOTICE: RoadCast is an educational historical analytics system. Historical traffic volume counts do not represent current road conditions or guaranteed travel times."
+}

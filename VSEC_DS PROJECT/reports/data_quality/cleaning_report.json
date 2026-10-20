@@ -1,0 +1,79 @@
+{
+  "execution_timestamp": "2026-10-20T09:45:02.822419+00:00",
+  "input_file": "C:\\Users\\hp\\OneDrive\\Desktop\\VSEC_DS PROJECT\\app\\transformation\\..\\..\\data\\raw\\Metro_Interstate_Traffic_Volume.csv",
+  "output_file": "C:\\Users\\hp\\OneDrive\\Desktop\\VSEC_DS PROJECT\\app\\transformation\\..\\..\\data\\processed\\metro_traffic_processed.csv",
+  "initial_record_count": 48204,
+  "final_record_count": 40575,
+  "records_removed_total": 7629,
+  "retention_rate_pct": 84.17,
+  "columns_added": [
+    "temp_celsius",
+    "hour",
+    "day_of_week",
+    "day_name",
+    "is_weekend",
+    "month",
+    "month_name",
+    "year",
+    "is_holiday",
+    "congestion_category"
+  ],
+  "date_range": {
+    "start": "2012-10-02 09:00:00",
+    "end": "2018-09-30 23:00:00"
+  },
+  "traffic_volume_summary": {
+    "mean": 3290.65,
+    "median": 3427.0,
+    "std": 1984.77,
+    "min": 0,
+    "max": 7280,
+    "unit": "vehicles/hour"
+  },
+  "congestion_distribution": {
+    "Low": 11030,
+    "Heavy": 10214,
+    "Severe": 9715,
+    "Moderate": 9616
+  },
+  "audit_trail": [
+    {
+      "step": "missingness_audit",
+      "description": "Quantified missing values per column prior to imputation or drop.",
+      "details": {
+        "holiday": 48143,
+        "temp": 0,
+        "rain_1h": 0,
+        "snow_1h": 0,
+        "clouds_all": 0,
+        "weather_main": 0,
+        "weather_description": 0,
+        "date_time": 0,
+        "traffic_volume": 0
+      }
+    },
+    {
+      "step": "holiday_normalization",
+      "description": "Normalized non-holiday records from null to 'None'.",
+      "records_affected": 48143
+    },
+    {
+      "step": "deduplication",
+      "key": [
+        "date_time"
+      ],
+      "description": "Removed duplicate hourly readings for identical timestamps to produce continuous hourly time-series.",
+      "duplicates_removed": 7629
+    },
+    {
+      "step": "temperature_anomaly_handling",
+      "description": "Identified sensor freeze (0 K) records and imputed from adjacent hourly observations.",
+      "records_corrected": 10
+    },
+    {
+      "step": "rainfall_anomaly_handling",
+      "description": "Capped physically impossible rainfall gauge spikes (>250mm/hr) using local forward fill.",
+      "records_corrected": 1
+    }
+  ]
+}
